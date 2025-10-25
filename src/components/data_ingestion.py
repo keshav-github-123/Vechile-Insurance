@@ -10,6 +10,8 @@ from src.exception import MyException
 from src.logger import logging
 from src.data_access.proj1_data import Proj1Data
 
+import pandas as pd
+
 class DataIngestion:
     def __init__(self,data_ingestion_config:DataIngestionConfig=DataIngestionConfig()):
         """
@@ -31,10 +33,12 @@ class DataIngestion:
         """
         try:
             logging.info(f"Exporting data from mongodb")
-            my_data = Proj1Data()
-            dataframe = my_data.export_collection_as_dataframe(collection_name=
-                                                                   self.data_ingestion_config.collection_name)
-            logging.info(f"Shape of dataframe: {dataframe.shape}")
+            # my_data = Proj1Data()
+            # dataframe = my_data.export_collection_as_dataframe(collection_name=
+            #                                                        self.data_ingestion_config.collection_name)
+            # logging.info(f"Shape of dataframe: {dataframe.shape}")
+
+            dataframe = pd.read_csv("data.csv")
             feature_store_file_path  = self.data_ingestion_config.feature_store_file_path
             dir_path = os.path.dirname(feature_store_file_path)
             os.makedirs(dir_path,exist_ok=True)
