@@ -14,6 +14,7 @@ PIPELINE_NAME: str = ""
 ARTIFACT_DIR: str = "artifact"
 
 MODEL_FILE_NAME = "model.pkl"
+PREPROCESSOR_MODEL_FILE_NAME = "preprocessor_pipeline.pkl"
 
 TARGET_COLUMN = "Response"
 CURRENT_YEAR = date.today().year
@@ -71,7 +72,7 @@ MIN_SAMPLES_SPLIT_RANDOM_STATE: int = 101
 MODEL Evaluation related constants
 """
 MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE: float = 0.02
-MODEL_BUCKET_NAME = "my-model-mlopsproj"
+MODEL_BUCKET_NAME = "my-model-mlopsproj-bucket-new" #"my-model-mlopsproj"
 MODEL_PUSHER_S3_KEY = "model-registry"
 
 
