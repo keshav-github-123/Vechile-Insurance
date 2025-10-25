@@ -4,89 +4,479 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Insurance Prediction</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 50px 50px;
+            opacity: 0.3;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 48px;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #cbd5e0;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 11px;
+            color: #fff;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: normal;
+            width: 250px;
+            z-index: 10;
+            margin-bottom: 8px;
+            font-weight: 400;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="number"],
+        select {
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: #2d3748;
+            font-family: inherit;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input[type="number"]:hover,
+        select:hover {
+            border-color: #cbd5e0;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url('data:image/svg+xml,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%234a5568" stroke-width="2" stroke-linecap="round"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 44px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .predict-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .predict-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .predict-button:active {
+            transform: translateY(0);
+        }
+
+        .train-button {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .train-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 32px;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            border: 2px solid #e2e8f0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result h2 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .required-indicator {
+            color: #e53e3e;
+            margin-left: 4px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                min-width: 100%;
+            }
+        }
+
+        /* Loading State */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Input validation feedback */
+        input:invalid:not(:placeholder-shown),
+        select:invalid:not(:placeholder-shown) {
+            border-color: #fc8181;
+        }
+
+        input:valid:not(:placeholder-shown),
+        select:valid:not(:placeholder-shown) {
+            border-color: #68d391;
+        }
+
+        /* Smooth scrolling for overflow */
+        @media (max-height: 800px) {
+            body {
+                align-items: flex-start;
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Vehicle Insurance Prediction</h1>
+        <h1>🚗 Vehicle Insurance Predictor</h1>
+        <p class="subtitle">Get instant predictions on customer insurance interest</p>
 
         <form method="post" action="/">
+            <div class="form-grid">
+                <!-- Gender -->
+                <div class="form-group">
+                    <label for="Gender">
+                        Gender<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Select the Gender of the applicant (Male or Female).">?</span>
+                    </label>
+                    <select id="Gender" name="Gender" required>
+                        <option value="">-- Select Gender --</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
 
-            <!-- Gender -->
-            <label for="Gender">Gender:</label>
-            <select id="Gender" name="Gender" required>
-                <option value="">-- Select Gender --</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-            </select>
+                <!-- Age -->
+                <div class="form-group">
+                    <label for="Age">
+                        Age<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Enter the applicant's Age in years. Valid range: 20 to 85.">?</span>
+                    </label>
+                    <input type="number" id="Age" name="Age" min="20" max="85" placeholder="e.g., 35" required>
+                </div>
 
-            <!-- Age -->
-            <label for="Age">Age:</label>
-            <input type="number" id="Age" name="Age" min="18" max="100" required>
+                <!-- Driving License -->
+                <div class="form-group">
+                    <label for="Driving_License">
+                        Driving License<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Indicate if the applicant possesses a Valid Driving License (1 for Yes, 0 for No). Most applicants have one.">?</span>
+                    </label>
+                    <select id="Driving_License" name="Driving_License" required>
+                        <option value="">-- Select --</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
 
-            <!-- Driving License -->
-            <label for="Driving_License">Driving License:</label>
-            <select id="Driving_License" name="Driving_License" required>
-                <option value="">-- Select --</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-            </select>
+                <!-- Region Code -->
+                <div class="form-group">
+                    <label for="Region_Code">
+                        Region Code<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Enter the Region Code of the applicant's residence. This is a numeric value.">?</span>
+                    </label>
+                    <input type="number" step="0.01" id="Region_Code" name="Region_Code" placeholder="e.g., 28" required>
+                </div>
 
-            <!-- Region Code -->
-            <label for="Region_Code">Region Code:</label>
-            <input type="number" step="0.01" id="Region_Code" name="Region_Code" required>
+                <!-- Previously Insured -->
+                <div class="form-group">
+                    <label for="Previously_Insured">
+                        Previously Insured<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Indicate if the applicant was Previously Insured (1 for Yes, 0 for No).">?</span>
+                    </label>
+                    <select id="Previously_Insured" name="Previously_Insured" required>
+                        <option value="">-- Select --</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
 
-            <!-- Previously Insured -->
-            <label for="Previously_Insured">Previously Insured:</label>
-            <select id="Previously_Insured" name="Previously_Insured" required>
-                <option value="">-- Select --</option>
-                <option value="1">Yes</option>
-                <option value="0">No</option>
-            </select>
+                <!-- Annual Premium -->
+                <div class="form-group">
+                    <label for="Annual_Premium">
+                        Annual Premium<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Enter the Annual Premium amount in local currency. Typical range: ₹24,400 to ₹39,400.">?</span>
+                    </label>
+                    <input type="number" step="0.01" id="Annual_Premium" name="Annual_Premium" placeholder="e.g., 30000" required>
+                </div>
 
-            <!-- Annual Premium -->
-            <label for="Annual_Premium">Annual Premium:</label>
-            <input type="number" step="0.01" id="Annual_Premium" name="Annual_Premium" required>
+                <!-- Policy Sales Channel -->
+                <div class="form-group">
+                    <label for="Policy_Sales_Channel">
+                        Policy Sales Channel<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Enter the numeric code for the Policy Sales Channel (e.g., 152, 26, or 133 are common values).">?</span>
+                    </label>
+                    <input type="number" step="0.01" id="Policy_Sales_Channel" name="Policy_Sales_Channel" placeholder="e.g., 152" required>
+                </div>
 
-            <!-- Policy Sales Channel -->
-            <label for="Policy_Sales_Channel">Policy Sales Channel:</label>
-            <input type="number" step="0.01" id="Policy_Sales_Channel" name="Policy_Sales_Channel" required>
+                <!-- Vintage -->
+                <div class="form-group">
+                    <label for="Vintage">
+                        Vintage (Days Active)<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Enter the number of Days the customer has been Associated with the Company. Range: 10 to 299 days.">?</span>
+                    </label>
+                    <input type="number" id="Vintage" name="Vintage" min="10" max="299" placeholder="e.g., 150" required>
+                </div>
 
-            <!-- Vintage -->
-            <label for="Vintage">Vintage (Days Active with Company):</label>
-            <input type="number" id="Vintage" name="Vintage" required>
+                <!-- Vehicle Age -->
+                <div class="form-group">
+                    <label for="Vehicle_Age">
+                        Vehicle Age<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Select the appropriate Age Range of the Vehicle. Most vehicles in the data are 1-2 years old.">?</span>
+                    </label>
+                    <select id="Vehicle_Age" name="Vehicle_Age" required>
+                        <option value="">-- Select Age Range --</option>
+                        <option value="< 1 Year">&lt; 1 Year</option>
+                        <option value="1-2 Years">1-2 Years</option>
+                        <option value="> 2 Years">&gt; 2 Years</option>
+                    </select>
+                </div>
 
-            <!-- Vehicle Age -->
-            <label for="Vehicle_Age">Vehicle Age:</label>
-            <select id="Vehicle_Age" name="Vehicle_Age" required>
-                <option value="">-- Select Age Range --</option>
-                <option value="< 1 Year">&lt; 1 Year</option>
-                <option value="1-2 Years">1-2 Years</option>
-                <option value="> 2 Years">&gt; 2 Years</option>
-            </select>
+                <!-- Vehicle Damage -->
+                <div class="form-group">
+                    <label for="Vehicle_Damage">
+                        Vehicle Damaged Before?<span class="required-indicator">*</span>
+                        <span class="tooltip-icon" data-tooltip="Indicate if the vehicle has Sustained Damage in the past (Yes or No).">?</span>
+                    </label>
+                    <select id="Vehicle_Damage" name="Vehicle_Damage" required>
+                        <option value="">-- Select --</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </div>
 
-            <!-- Vehicle Damage -->
-            <label for="Vehicle_Damage">Vehicle Damaged Before?:</label>
-            <select id="Vehicle_Damage" name="Vehicle_Damage" required>
-                <option value="">-- Select --</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
-
-            <!-- Submit -->
-            <button type="submit">Predict</button>
-        </form>
-
-        <!-- Train model button -->
-        <form method="get" action="/train">
-            <button type="submit" class="train-button">Train Model</button>
+            <div class="button-group">
+                <button type="submit" class="predict-button">
+                    🎯 Get Prediction
+                </button>
+                <button type="button" class="train-button" onclick="window.location.href='/train'">
+                    🔧 Train Model
+                </button>
+            </div>
         </form>
 
         {% if context %}
             <div class="result">
-                <h2>Result: {{ context }}</h2>
+                <h2>{{ context }}</h2>
             </div>
         {% endif %}
     </div>
+
+    <script>
+        // Add subtle animation on form field focus
+        document.querySelectorAll('input, select').forEach(field => {
+            field.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.01)';
+            });
+            
+            field.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Form validation feedback
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('.predict-button');
+            button.textContent = '⏳ Processing...';
+            button.disabled = true;
+        });
+    </script>
 </body>
 </html>
